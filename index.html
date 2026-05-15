@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart list</title>
+    <link rel="stylesheet" type="text/css" href="main.css" />
+</head>
+<body>
+
+<div class="main-box">
+
+    <section class="add-list">
+        <div class="search-and-add">
+            <input type="text" class="product-name" placeholder="Enter product name">
+            <button class="purchase-btn" data-tooltip="Add product">Add</button>
+        </div>
+
+        <div class="products">
+                <div class="product-item">
+                    <span class="item-name">Tomatoes</span>
+                    
+                    <div class="item-actions">
+                        <button class="btn-minus" data-tooltip="Decrease amount">-</button>
+                        <span class="quantity">4</span>
+                        <button class="btn-plus" data-tooltip="Increase amount">+</button>
+                    </div>
+
+                    <div class="item-status">
+                    <span class="btn-status">Not in a cart</span>
+                        <button class="btn-delete" data-tooltip="Delete product">×</button>
+                    </div>
+                </div>
+
+            <div class="product-item">
+                <span class="item-name" style="text-decoration: line-through;">Biscuits</span>
+
+                <div class="item-actions">
+                    <span class="quantity">2</span>
+                </div>
+
+                <div class="item-status">
+                    <span class="btn-status">Already in a cart</span>
+                </div>
+            </div>
+
+            <div class="product-item">
+                <span class="item-name">Cheese</span>
+                
+                <div class="item-actions">
+                    <button class="btn-minus" data-tooltip="Decrease amount">-</button>
+                    <span class="quantity">1</span>
+                    <button class="btn-plus" data-tooltip="Increase amount">+</button>
+                </div>
+
+                <div class="item-status">
+                    <span class="btn-status">Not in a cart</span>
+                        <button class="btn-delete" data-tooltip="Delete product">×</button>
+                    </div>
+            </div>
+        </div>  
+    </section>
+
+    <section class="buy-list">
+        
+        <div class="purchases-left">
+            <span class="text-left"><b>Left</b></span>
+            <div class="items-left">
+                <span>Tomatoes</span>
+                <span class="quantity-left">4</span>
+            </div>
+
+            <div class="items-left">
+                <span>Cheese</span>
+                <span class="quantity-left">1</span>
+            </div>
+        </div>
+
+        <div class="purch-bought">
+            <span class="text-bought"><b>Bought</b></span>
+            <div class="items-bought">
+                <span style="text-decoration: line-through;">Biscuits</span>
+                <span style="text-decoration: line-through"; class="quantity-bought">2</span>
+            </div>
+        </div>
+
+    </section>
+
+    <section class="badge">
+        <div class="buy-list-badge">
+            Buy List
+        </div>
+        <div class="full-name">
+            <span>Created by:<br>Karachentseva Sofia</span>
+        </div>
+    </section>
+
+</div>
+    
+</body>
+</html>
