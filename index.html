@@ -1,101 +1,271 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cart list</title>
-    <link rel="stylesheet" type="text/css" href="main.css" />
+    <title>Морський бій</title>
+    <link href="https://cdn.webdatarocks.com/latest/webdatarocks.min.css" rel="stylesheet" />
+    <script src="https://cdn.webdatarocks.com/latest/webdatarocks.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { 
+            background-color: #1e272e; 
+            color: #d2dae2; 
+            font-family: Tahoma, sans-serif; 
+            text-align: center; 
+            padding: 20px; 
+        }
+
+        .boards-container { 
+            display: flex; 
+            justify-content: center; 
+            gap: 40px; 
+            flex-wrap: wrap; 
+        }
+
+        .board-wrapper { 
+            width: 450px; 
+            background-color: #fff; 
+            padding: 10px; 
+            border-radius: 8px; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3); 
+        }
+
+        .board-title { 
+            color: #1e272e; 
+            font-weight: bold; 
+            margin-bottom: 10px; 
+        }
+
+        #status { 
+            font-weight: bold; 
+            margin-bottom: 20px; 
+            font-size: 1.2em; 
+        }
+    </style>
 </head>
 <body>
 
-<div class="main-box">
+    <h2>Морський бій</h2>
+    <div id="status" style="color: #ffdd59;">Очікування гравця...</div>
 
-    <section class="add-list">
-        <div class="search-and-add">
-            <input type="text" class="product-name" placeholder="Enter product name">
-            <button class="purchase-btn" data-tooltip="Add product">Add</button>
+    <div class="boards-container">
+        <div class="board-wrapper">
+            <div class="board-title">Моє поле</div>
+            <div id="wdr-my-board"></div>
         </div>
+        <div class="board-wrapper">
+            <div class="board-title">Поле суперника (стріляй сюди)</div>
+            <div id="wdr-enemy-board"></div>
+        </div>
+    </div>
 
-        <div class="products">
-                <div class="product-item">
-                    <span class="item-name">Tomatoes</span>
-                    
-                    <div class="item-actions">
-                        <button class="btn-minus" data-tooltip="Decrease amount">-</button>
-                        <span class="quantity">4</span>
-                        <button class="btn-plus" data-tooltip="Increase amount">+</button>
-                    </div>
-
-                    <div class="item-status">
-                    <span class="btn-status">Not in a cart</span>
-                        <button class="btn-delete" data-tooltip="Delete product">×</button>
-                    </div>
-                </div>
-
-            <div class="product-item">
-                <span class="item-name" style="text-decoration: line-through;">Biscuits</span>
-
-                <div class="item-actions">
-                    <span class="quantity">2</span>
-                </div>
-
-                <div class="item-status">
-                    <span class="btn-status">Already in a cart</span>
-                </div>
-            </div>
-
-            <div class="product-item">
-                <span class="item-name">Cheese</span>
-                
-                <div class="item-actions">
-                    <button class="btn-minus" data-tooltip="Decrease amount">-</button>
-                    <span class="quantity">1</span>
-                    <button class="btn-plus" data-tooltip="Increase amount">+</button>
-                </div>
-
-                <div class="item-status">
-                    <span class="btn-status">Not in a cart</span>
-                        <button class="btn-delete" data-tooltip="Delete product">×</button>
-                    </div>
-            </div>
-        </div>  
-    </section>
-
-    <section class="buy-list">
+    <script>
+        const socket = io();
         
-        <div class="purchases-left">
-            <span class="text-left"><b>Left</b></span>
-            <div class="items-left">
-                <span>Tomatoes</span>
-                <span class="quantity-left">4</span>
-            </div>
+        let myTurn = false;
+        let gameStarted = false;
+        let myShipsLeft = 10;
+        
+        const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+        
+        let myBoard = {};
+        let enemyBoard = {};
 
-            <div class="items-left">
-                <span>Cheese</span>
-                <span class="quantity-left">1</span>
-            </div>
-        </div>
+        rows.forEach(r => {
+            for (let c = 1; c <= 10; c++) {
+                myBoard[r + '-' + c] = 0;
+                enemyBoard[r + '-' + c] = 0;
+            }
+        });
 
-        <div class="purch-bought">
-            <span class="text-bought"><b>Bought</b></span>
-            <div class="items-bought">
-                <span style="text-decoration: line-through;">Biscuits</span>
-                <span style="text-decoration: line-through"; class="quantity-bought">2</span>
-            </div>
-        </div>
+        let ships = 0;
+        while (ships < 10) {
+            let randomRow = rows[Math.floor(Math.random() * 10)];
+            let randomCol = Math.floor(Math.random() * 10) + 1;
+            let key = randomRow + '-' + randomCol;
+            
+            if (myBoard[key] === 0) { 
+                myBoard[key] = 1; 
+                ships++; 
+            }
+        }
 
-    </section>
+        function getWDRData(boardObj) {
+            let data = [];
+            for (let key in boardObj) {
+                let [r, c] = key.split('-');
+                let colName = c.length === 1 ? "0" + c : c;
+                
+                data.push({ 
+                    "Рядок": r, 
+                    "Стовпець": colName, 
+                    "Значення": boardObj[key] 
+                });
+            }
+            return data;
+        }
 
-    <section class="badge">
-        <div class="buy-list-badge">
-            Buy List
-        </div>
-        <div class="full-name">
-            <span>Created by:<br>Karachentseva Sofia</span>
-        </div>
-    </section>
+        function setStatus(text, color) {
+            let el = document.getElementById('status');
+            el.innerText = text;
+            el.style.color = color;
+        }
 
-</div>
-    <script src="buylist.js"></script>
+        const baseConfig = {
+            slice: {
+                rows: [{ uniqueName: "Рядок" }],
+                columns: [{ uniqueName: "Стовпець" }],
+                measures: [{ 
+                    uniqueName: "Значення", 
+                    aggregation: "sum", 
+                    format: "fmt" 
+                }]
+            },
+            options: { 
+                grid: { 
+                    showGrandTotals: "off", 
+                    showFilter: false, 
+                    showHeaders: false, 
+                    showHierarchyCaptions: false 
+                } 
+            },
+            formats: [{ 
+                name: "fmt", 
+                decimalPlaces: 0, 
+                textAlign: "center" 
+            }]
+        };
+
+        let pivotMe = new WebDataRocks({
+            container: "#wdr-my-board", 
+            toolbar: false,
+            report: {
+                dataSource: { data: getWDRData(myBoard) }, 
+                ...baseConfig,
+                conditions: [
+                    { 
+                        formula: "#value == 0", 
+                        format: { backgroundColor: "#4bcffa", color: "#4bcffa" } 
+                    },
+                    { 
+                        formula: "#value == 1", 
+                        format: { backgroundColor: "#808e9b", color: "#808e9b" } 
+                    },
+                    { 
+                        formula: "#value == 2", 
+                        format: { backgroundColor: "#d2dae2", color: "#d2dae2" } 
+                    },
+                    { 
+                        formula: "#value == 3", 
+                        format: { backgroundColor: "#ff3f34", color: "#ff3f34" } 
+                    }
+                ]
+            }
+        });
+
+        let pivotEnemy = new WebDataRocks({
+            container: "#wdr-enemy-board", 
+            toolbar: false,
+            report: {
+                dataSource: { data: getWDRData(enemyBoard) }, 
+                ...baseConfig,
+                conditions: [
+                    { 
+                        formula: "#value <= 1", 
+                        format: { backgroundColor: "#4bcffa", color: "#4bcffa" } 
+                    },
+                    { 
+                        formula: "#value == 2", 
+                        format: { backgroundColor: "#d2dae2", color: "#d2dae2" } 
+                    },
+                    { 
+                        formula: "#value == 3", 
+                        format: { backgroundColor: "#ff3f34", color: "#ff3f34" } 
+                    }
+                ]
+            },
+            cellclick: function(cell) {
+                if (!gameStarted) return alert("Чекаємо суперника!");
+                if (!myTurn) return alert("Зараз не твій хід!");
+
+                let key = cell.rows[0].caption + '-' + parseInt(cell.columns[0].caption);
+                
+                if (enemyBoard[key] >= 2) return;
+
+                myTurn = false; 
+                setStatus("Снаряд летить...", "#d2dae2");
+                socket.emit('shoot', { key: key });
+            }
+        });
+
+        socket.on('startGame', () => {
+            gameStarted = true;
+        });
+
+        socket.on('yourTurn', (isMyTurn) => {
+            myTurn = isMyTurn;
+            
+            if (isMyTurn) {
+                setStatus("ТВІЙ ХІД!", "#0be881");
+            } else {
+                setStatus("Хід суперника...", "#ffdd59");
+            }
+        });
+
+        socket.on('receiveShot', (data) => {
+            let isHit = myBoard[data.key] === 1;
+            
+            myBoard[data.key] = isHit ? 3 : 2;
+            
+            if (isHit) {
+                myShipsLeft--;
+            }
+
+            pivotMe.updateData({ data: getWDRData(myBoard) });
+
+            let gameOver = (myShipsLeft === 0);
+            
+            socket.emit('shotResult', { 
+                key: data.key, 
+                status: myBoard[data.key], 
+                hit: isHit, 
+                gameOver: gameOver 
+            });
+            
+            if (gameOver) {
+                gameStarted = false;
+                setStatus("ПРОГРАШ! Усі кораблі було знищено.", "#ff3f34");
+                return;
+            }
+
+            myTurn = !isHit;
+            
+            if (isHit) {
+                setStatus("В тебе влучили! У суперника ще один хід...", "#ffdd59");
+            } else {
+                setStatus("Суперник промазав. ТВІЙ ХІД!", "#0be881");
+            }
+        });
+
+        socket.on('shotResult', (data) => {
+            enemyBoard[data.key] = data.status;
+            pivotEnemy.updateData({ data: getWDRData(enemyBoard) });
+
+            if (data.gameOver) {
+                gameStarted = false;
+                myTurn = false;
+                setStatus("ПЕРЕМОГА! Ти знищив усі кораблі!", "#0be881");
+                return;
+            }
+
+            myTurn = data.hit;
+            
+            if (data.hit) {
+                setStatus("Влучив! Стріляй ще раз!", "#0be881");
+            } else {
+                setStatus("Промазав. Хід суперника...", "#ffdd59");
+            }
+        });
+    </script>
 </body>
 </html>
